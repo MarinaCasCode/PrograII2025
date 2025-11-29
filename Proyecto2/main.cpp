@@ -4,16 +4,21 @@
 using namespace std;
 
 int main() {
-    cout << "prueba inicial del arbol rojo-negro" << endl;
+    cout << "prueba del arbol rojo-negro con rotaciones" << endl << endl;
 
     ArbolRB arbol("int");
     
-    int valores[] = {10, 20, 5, 15, 30};
-    for(int i = 0; i < 5; i++) {
+    // Insertar valores que provocarán rotaciones
+    int valores[] = {10, 20, 30, 15, 25, 5, 1};
+    
+    for(int i = 0; i < 7; i++) {
+        cout << valores[i] << " ";
         arbol.insert(&valores[i]);
     }
+    cout << endl << endl;
 
-    cout << "recorrido por niveles: " << arbol.toString() << endl;
+    cout << "recorridos del arbol:" << endl;
+    cout << arbol.toString() << endl;
 
     return 0;
 }

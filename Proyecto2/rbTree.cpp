@@ -86,11 +86,49 @@ public:
 
 private:
     void rotarIzquierda(NodoRB* x) {
-        // implementacion basica de rotacion izquierda
+        NodoRB* y = (NodoRB*)x->der;
+        x->der = y->izq;
+
+        if(y->izq != NULL) {
+            y->izq->padre = x;
+        }
+
+        Nodo* padre_y = x->padre;
+        y->padre = padre_y;
+
+        if(padre_y == NULL) {
+            raiz = y;
+        } else if(x == padre_y->izq) {
+            padre_y->izq = y;
+        } else {
+            padre_y->der = y;
+        }
+
+        y->izq = x;
+        x->padre = y;
     }
 
     void rotarDerecha(NodoRB* y) {
-        // implementacin de rotacion derecha  
+        NodoRB* x = (NodoRB*)y->izq;
+        y->izq = x->der;
+
+        if(x->der != NULL) {
+            x->der->padre = y;
+        }
+
+        Nodo* padre_x = y->padre;
+        x->padre = padre_x;
+
+        if(padre_x == NULL) {
+            raiz = x;
+        } else if(y == padre_x->izq) {
+            padre_x->izq = x;
+        } else {
+            padre_x->der = x;
+        }
+
+        x->der = y;
+        y->padre = x;
     }
 
     void fixInsert(NodoRB* n) {
