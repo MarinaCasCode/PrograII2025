@@ -11,12 +11,13 @@ using namespace std;
 class Nodo{
   public:
   void* dato;
-  Nodo *izq, *der;
+  Nodo *izq, *der, *padre;  // nuevo campo padre
   string T;
   Nodo(void* dato){
     this->dato = dato;
     izq = NULL;
     der = NULL;
+    padre = NULL;  // inicializar padre
   }
   
   string toString(){
@@ -41,10 +42,10 @@ class Nodo{
   }
   
   virtual void postConstructor(){
-    /* Otras clases heredan de esta clase, pero sus constructores no serán invocados con el insert base.
+    /* Otras clases heredan de esta clase, pero sus constructores no serï¿½n invocados con el insert base.
 	Si esos constructores no se invocan, el programa queda con 'undefined behavior' y provoca segmentation faults.
-	Cada clase derivada debe por obligación implementar este método; sin embargo, no podemos declararlo como virtual puro,
-	ya que eso provocaría que la clase Nodo se convierta en clase abstracta y no se podría instanciar. */
+	Cada clase derivada debe por obligaciï¿½n implementar este mï¿½todo; sin embargo, no podemos declararlo como virtual puro,
+	ya que eso provocarï¿½a que la clase Nodo se convierta en clase abstracta y no se podrï¿½a instanciar. */
   }
 };
 
@@ -105,9 +106,11 @@ class ArbolBST{
 		
       }// while
 	  
-      // realizar la inserción
+      // realizar la inserciï¿½n
       if(donde == 'I') p->izq = nuevoNodo;
       else p->der = nuevoNodo;
+    
+      nuevoNodo->padre = p;
 	
     }//else
   
@@ -173,7 +176,7 @@ class ArbolSVG : public ArbolBST {
   
   ArbolSVG(string T) : ArbolBST(T){ }
   
-  // Función para asignar coordenadas a cada nodo
+  // Funciï¿½n para asignar coordenadas a cada nodo
   void asignarCoordenadas(NodoSVG* node, int depth, int& xRef, int horizontalSpacing, int verticalSpacing){
     if(node == NULL) return;
 
@@ -183,7 +186,7 @@ class ArbolSVG : public ArbolBST {
       asignarCoordenadas((NodoSVG*)node->izq, depth + 1, xRef, horizontalSpacing, verticalSpacing);
 	}
 
-    // La coordenada x se asigna en función del contador xRef
+    // La coordenada x se asigna en funciï¿½n del contador xRef
     node->x = xRef * horizontalSpacing;
     node->y = depth * verticalSpacing;
     xRef += 1;
@@ -193,13 +196,13 @@ class ArbolSVG : public ArbolBST {
 	}
   }
 
-  // Función para obtener el tamaño del árbol
+  // Funciï¿½n para obtener el tamaï¿½o del ï¿½rbol
   int getTreeSize(NodoSVG* node){
     if(node == NULL) return 0;
     return 1 + max(getTreeSize((NodoSVG*)node->izq), getTreeSize((NodoSVG*)node->der));
   }
 
-  // Función para generar el SVG
+  // Funciï¿½n para generar el SVG
   string toSVG(){
     NodoSVG* root = (NodoSVG*)raiz;
     int svgWidth = 800;
@@ -215,26 +218,26 @@ class ArbolSVG : public ArbolBST {
     stringstream svgContent;
 	svgContent /*=*/<< "<svg viewBox=\"0 0 200 200\" xmlns=\"http://www.w3.org/2000/svg\" style=\"width: 100%; height: auto;\">";
 
-    // Función lambda para dibujar nodos y conexiones
+    // Funciï¿½n lambda para dibujar nodos y conexiones
 	/*[&]: capturar todas las variables externas por referencia. */
 	
 	auto dibujarNodo = [&](const auto &self, NodoSVG* node, stringstream& svgContent) -> void {
       if(node == NULL) return;
       
-      // Dibujar línea hacia el hijo izquierdo
+      // Dibujar lï¿½nea hacia el hijo izquierdo
       if(node->izq != NULL){
         svgContent /*+=*/<< "<line x1=\""<<node->x<<"\" y1=\""<<node->y<<"\" x2=\""<<((NodoSVG*)node->izq)->x<<"\" y2=\""<<((NodoSVG*)node->izq)->y<<"\" stroke=\"black\"/>";
       }
       
-      // Dibujar línea hacia el hijo derecho
+      // Dibujar lï¿½nea hacia el hijo derecho
       if(node->der != NULL){
         svgContent /*+=*/<< "<line x1=\""<<node->x<<"\" y1=\""<<node->y<<"\" x2=\""<<((NodoSVG*)node->der)->x<<"\" y2=\""<<((NodoSVG*)node->der)->y<<"\" stroke=\"black\"/>";
       }
       
-      // Dibujar el nodo como un círculo
+      // Dibujar el nodo como un cï¿½rculo
       svgContent /*+=*/<< "<circle cx=\""<<node->x<<"\" cy=\""<<node->y<<"\" r=\"20\" fill=\"lightblue\" stroke=\"black\"/>";
       
-      // Añadir el valor del nodo como texto
+      // Aï¿½adir el valor del nodo como texto
       svgContent /*+=*/<< "<text x=\""<<node->x<<"\" y=\""<<(node->y + 5)<<"\" text-anchor=\"middle\" font-size=\"12\" fill=\"black\">"<<node->toString()<<"</text>";
       //svgContent /*+=*/<< "<image x=\""<<node->x<<"\" y=\""<<(node->y + 5)<<"\" xlink:href=\"imagen_0.png\" height=\"200\" width=\"200\"/>";
       
@@ -278,7 +281,7 @@ class ArbolSVG : public ArbolBST {
     fileIn.close();
 	
 	
-	/* generación del archivo de salida */
+	/* generaciï¿½n del archivo de salida */
   
     string svgHTMLJS_str = svgHTMLJS.str();
     string svg = toSVG();
@@ -286,7 +289,7 @@ class ArbolSVG : public ArbolBST {
 	string replacePattern = "%s";
 	int replacePatternIndex = svgHTMLJS_str.find(replacePattern);
     if( replacePatternIndex == -1 ){
-      cout << "No se pudo encontrar el patrón de reemplazo." << endl;
+      cout << "No se pudo encontrar el patrï¿½n de reemplazo." << endl;
 	  return -1;
     }
     
@@ -301,7 +304,7 @@ class ArbolSVG : public ArbolBST {
     fileOut << svgHTMLJS_str.substr( replacePatternIndex + replacePattern.length() );
     fileOut.close();
 	
-    cout << "Se generó el visualizador '"<< outfilename <<"'.\nPor favor, proceda a abrilo desde un navegador web." << endl;
+    cout << "Se generï¿½ el visualizador '"<< outfilename <<"'.\nPor favor, proceda a abrilo desde un navegador web." << endl;
     
     stringstream openBrowser;
     #if _WIN32
