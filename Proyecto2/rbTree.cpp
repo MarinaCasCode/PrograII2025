@@ -84,7 +84,78 @@ public:
         fixInsert((NodoRB*)nuevoNodo);
     }
 
+    // sobreescribir toSVG para mostrar colores
+    string toSVG() {
+        NodoSVG* root = (NodoSVG*)raiz;
+        int svgWidth = 800;
+        int svgHeight = 600;
+        int horizontalSpacing = 50;
+        int verticalSpacing = 80;
+
+        int xRef = 1;
+        asignarCoordenadas(root, 0, xRef, horizontalSpacing, verticalSpacing);
+
+        stringstream svgContent;
+        svgContent << "<svg viewBox=\"0 0 200 200\" xmlns=\"http://www.w3.org/2000/svg\" style=\"width: 100%; height: auto;\">";
+
+        auto dibujarNodo = [&](const auto &self, NodoSVG* node, stringstream& svgContent) -> void {
+            if(node == NULL) return;
+            
+            NodoRB* nodeRB = (NodoRB*)node;
+
+            if(node->izq != NULL){
+                svgContent << "<line x1=\""<<node->x<<"\" y1=\""<<node->y<<"\" x2=\""<<((NodoSVG*)node->izq)->x<<"\" y2=\""<<((NodoSVG*)node->izq)->y<<"\" stroke=\"black\"/>";
+            }
+            
+            if(node->der != NULL){
+                svgContent << "<line x1=\""<<node->x<<"\" y1=\""<<node->y<<"\" x2=\""<<((NodoSVG*)node->der)->x<<"\" y2=\""<<((NodoSVG*)node->der)->y<<"\" stroke=\"black\"/>";
+            }
+            
+            // usar color rojo o negro segun el nodo RB
+            string colorFill = (nodeRB->color == ROJO) ? "red" : "black";
+            string textColor = (nodeRB->color == ROJO) ? "white" : "white";
+            
+            svgContent << "<circle cx=\""<<node->x<<"\" cy=\""<<node->y<<"\" r=\"20\" fill=\""<<colorFill<<"\" stroke=\"black\"/>";
+            svgContent << "<text x=\""<<node->x<<"\" y=\""<<(node->y + 5)<<"\" text-anchor=\"middle\" font-size=\"12\" fill=\""<<textColor<<"\">"<<node->toString()<<"</text>";
+            
+            self(self, (NodoSVG*)node->izq, svgContent);
+            self(self, (NodoSVG*)node->der, svgContent);
+        };
+
+        dibujarNodo(dibujarNodo, root, svgContent);
+        svgContent << "</svg>";
+
+        return svgContent.str();
+    }
+
+    int toSVG(string outfilename) {
+        string svg = toSVG();
+        return ArbolSVG::toSVG(outfilename);
+    }
+
 private:
+    NodoRB* getPadre(NodoRB* n) {
+        return (NodoRB*)n->padre;
+    }
+
+    NodoRB* getAbuelo(NodoRB* n) {
+        NodoRB* p = getPadre(n);
+        if(p == NULL) return NULL;
+        return (NodoRB*)p->padre;
+    }
+
+    NodoRB* getTio(NodoRB* n) {
+        NodoRB* abuelo = getAbuelo(n);
+        if(abuelo == NULL) return NULL;
+        
+        NodoRB* padre = getPadre(n);
+        if(padre == abuelo->izq) {
+            return (NodoRB*)abuelo->der;
+        } else {
+            return (NodoRB*)abuelo->izq;
+        }
+    }
+
     void rotarIzquierda(NodoRB* x) {
         NodoRB* y = (NodoRB*)x->der;
         x->der = y->izq;
@@ -132,7 +203,58 @@ private:
     }
 
     void fixInsert(NodoRB* n) {
-        // implementacion del fixInsert
+        while(n != raiz && ((NodoRB*)n->padre)->color == ROJO) {
+            NodoRB* padre = getPadre(n);
+            NodoRB* abuelo = getAbuelo(n);
+            
+            if(padre == abuelo->izq) {
+                NodoRB* tio = getTio(n);
+                
+                if(tio != NULL && tio->color == ROJO) {
+                    // caso 1: tio rojo
+                    padre->color = NEGRO;
+                    tio->color = NEGRO;
+                    abuelo->color = ROJO;
+                    n = abuelo;
+                } else {
+                    // caso 2: n es hijo derecho
+                    if(n == padre->der) {
+                        n = padre;
+                        rotarIzquierda(n);
+                        padre = getPadre(n);
+                        abuelo = getAbuelo(n);
+                    }
+                    // caso 3: n es hijo izquierdo
+                    padre->color = NEGRO;
+                    abuelo->color = ROJO;
+                    rotarDerecha(abuelo);
+                }
+            } else {
+                NodoRB* tio = getTio(n);
+                
+                if(tio != NULL && tio->color == ROJO) {
+                    // casp 1: tio rojo
+                    padre->color = NEGRO;
+                    tio->color = NEGRO;
+                    abuelo->color = ROJO;
+                    n = abuelo;
+                } else {
+                    // caso 2: n es hijo izquierdo
+                    if(n == padre->izq) {
+                        n = padre;
+                        rotarDerecha(n);
+                        padre = getPadre(n);
+                        abuelo = getAbuelo(n);
+                    }
+                    // caso 3 n es hijo derecho
+                    padre->color = NEGRO;
+                    abuelo->color = ROJO;
+                    rotarIzquierda(abuelo);
+                }
+            }
+        }
+        
+        ((NodoRB*)raiz)->color = NEGRO;
     }
 };
 
