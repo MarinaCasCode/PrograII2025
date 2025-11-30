@@ -218,6 +218,85 @@ class ArbolBST{
     ss << n->toString() << ", ";
   }
   
+  Nodo* encontrarMinimo(Nodo* nodo){
+    while(nodo->izq != NULL){
+      nodo = nodo->izq;
+    }
+    return nodo;
+  }
+  
+  Nodo* deleteRec(Nodo* nodo, void* dato){
+    if(nodo == NULL) return NULL;
+    
+    // Comparar para encontrar el nodo a eliminar
+    int cmp = 0;
+    if(T == T(string)){
+      string* d1 = (string*)dato;
+      string* d2 = (string*)nodo->dato;
+      cmp = d1->compare(*d2);
+    }
+    else if(T == T(int) || T == T(float) || T == T(double)){
+      int* d1 = (int*)dato;
+      int* d2 = (int*)nodo->dato;
+      if(*d1 == *d2) cmp = 0;
+      else if(*d1 < *d2) cmp = -1;
+      else cmp = 1;
+    }
+    else if(T == "ParClaveValor"){
+      string* clave1 = (string*)dato;
+      string* clave2 = (string*)nodo->dato;
+      cmp = clave1->compare(*clave2);
+    }
+    else{
+      if(dato == nodo->dato) cmp = 0;
+      else if(dato < nodo->dato) cmp = -1;
+      else cmp = 1;
+    }
+    
+    // Buscar el nodo a eliminar
+    if(cmp < 0){
+      nodo->izq = deleteRec(nodo->izq, dato);
+      if(nodo->izq != NULL) nodo->izq->padre = nodo;
+    }
+    else if(cmp > 0){
+      nodo->der = deleteRec(nodo->der, dato);
+      if(nodo->der != NULL) nodo->der->padre = nodo;
+    }
+    else{
+      // Nodo encontrado - eliminar
+      
+      // Caso 1: Nodo hoja o con un solo hijo
+      if(nodo->izq == NULL){
+        Nodo* temp = nodo->der;
+        delete nodo;
+        return temp;
+      }
+      else if(nodo->der == NULL){
+        Nodo* temp = nodo->izq;
+        delete nodo;
+        return temp;
+      }
+      
+      // Caso 2: Nodo con dos hijos
+      // Encontrar el sucesor inorder (minimo del subarbol derecho)
+      Nodo* sucesor = encontrarMinimo(nodo->der);
+      
+      // Copiar el dato del sucesor al nodo actual
+      nodo->dato = sucesor->dato;
+      
+      // Eliminar el sucesor
+      nodo->der = deleteRec(nodo->der, sucesor->dato);
+      if(nodo->der != NULL) nodo->der->padre = nodo;
+    }
+    
+    return nodo;
+  }
+  
+  void deleteNode(void* dato){
+    raiz = deleteRec(raiz, dato);
+    if(raiz != NULL) raiz->padre = NULL;
+  }
+  
   string toString(){
     if(raiz == NULL) return "";
     
