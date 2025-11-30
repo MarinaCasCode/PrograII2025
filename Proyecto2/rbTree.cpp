@@ -8,6 +8,14 @@ using namespace std;
 
 enum Color { ROJO, NEGRO };
 
+class ParClaveValorBase {
+public:
+    string clave;
+
+    ParClaveValorBase() : clave("") { }
+    ParClaveValorBase(const string& k) : clave(k) { }
+};
+
 class NodoRB : public NodoSVG {
 public:
     Color color;
@@ -31,57 +39,38 @@ public:
         NodoRB* nuevoNodo = new NodoRB(dato);
         nuevoNodo->T = T;
 
-        if(raiz == NULL) {
+        if (raiz == NULL) {
             raiz = nuevoNodo;
             ((NodoRB*)raiz)->color = NEGRO;
             return;
         }
 
         Nodo* it = raiz;
-        Nodo* p = NULL;
+        Nodo* p  = NULL;
         char donde = 'D';
 
-        while(it != NULL) {
+        while (it != NULL) {
             p = it;
-            if(T == "string") {
-                string* d1 = (string*)dato;
-                string* d2 = (string*)it->dato;
-                if(d1->compare(*d2) < 0) {
-                    it = it->izq;
-                    donde = 'I';
-                } else {
-                    it = it->der;
-                    donde = 'D';
-                }
-            } else if(T == "int" || T == "float" || T == "double") {
-                int* d1 = (int*)dato;
-                int* d2 = (int*)it->dato;
-                if(*d1 < *d2) {
-                    it = it->izq;
-                    donde = 'I';
-                } else {
-                    it = it->der;
-                    donde = 'D';
-                }
+            int cmp = comparar(dato, it->dato);
+
+            if (cmp < 0) {
+                it = it->izq;
+                donde = 'I';
             } else {
-                if(dato < it->dato) {
-                    it = it->izq;
-                    donde = 'I';
-                } else {
-                    it = it->der;
-                    donde = 'D';
-                }
+                it = it->der;
+                donde = 'D';
             }
         }
 
-        if(donde == 'I') {
+        if (donde == 'I') {
             p->izq = nuevoNodo;
         } else {
             p->der = nuevoNodo;
         }
+
         nuevoNodo->padre = p;
 
-        fixInsert((NodoRB*)nuevoNodo);
+        fixInsert(nuevoNodo);
     }
 
     // sobreescribir toSVG para mostrar colores
@@ -133,23 +122,67 @@ public:
         return ArbolSVG::toSVG(outfilename);
     }
 
+    // búsqueda binaria usando comparar()
+    Nodo* search(void* dato) {
+        Nodo* it = raiz;
+
+        while (it != NULL) {
+            int cmp = comparar(dato, it->dato);
+
+            if (cmp == 0) {
+                return it;
+            } else if (cmp < 0) {
+                it = it->izq;
+            } else {
+                it = it->der;
+            }
+        }
+        return NULL;
+    }
+
+
 private:
+    int comparar(void* dato1, void* dato2) {
+        if (T == T(string)) {
+            string* d1 = (string*)dato1;
+            string* d2 = (string*)dato2;
+            return d1->compare(*d2);
+        }
+        else if (T == T(int) || T == T(float) || T == T(double)) {
+            int* d1 = (int*)dato1;
+            int* d2 = (int*)dato2;
+            if (*d1 == *d2) return 0;
+            else if (*d1 < *d2) return -1;
+            else return 1;
+        }
+        else if (T == "pair") {
+            ParClaveValorBase* p1 = (ParClaveValorBase*)dato1;
+            ParClaveValorBase* p2 = (ParClaveValorBase*)dato2;
+            return p1->clave.compare(p2->clave);
+        }
+        else {
+            if (dato1 == dato2) return 0;
+            else if (dato1 < dato2) return -1;
+            else return 1;
+        }
+    }
+
     NodoRB* getPadre(NodoRB* n) {
         return (NodoRB*)n->padre;
     }
 
     NodoRB* getAbuelo(NodoRB* n) {
         NodoRB* p = getPadre(n);
-        if(p == NULL) return NULL;
+        if (p == NULL) return NULL;
         return (NodoRB*)p->padre;
     }
 
     NodoRB* getTio(NodoRB* n) {
         NodoRB* abuelo = getAbuelo(n);
-        if(abuelo == NULL) return NULL;
-        
+        if (abuelo == NULL) return NULL;
+
         NodoRB* padre = getPadre(n);
-        if(padre == abuelo->izq) {
+        if (padre == abuelo->izq) {
             return (NodoRB*)abuelo->der;
         } else {
             return (NodoRB*)abuelo->izq;
@@ -160,16 +193,16 @@ private:
         NodoRB* y = (NodoRB*)x->der;
         x->der = y->izq;
 
-        if(y->izq != NULL) {
+        if (y->izq != NULL) {
             y->izq->padre = x;
         }
 
         Nodo* padre_y = x->padre;
         y->padre = padre_y;
 
-        if(padre_y == NULL) {
+        if (padre_y == NULL) {
             raiz = y;
-        } else if(x == padre_y->izq) {
+        } else if (x == padre_y->izq) {
             padre_y->izq = y;
         } else {
             padre_y->der = y;
@@ -183,16 +216,16 @@ private:
         NodoRB* x = (NodoRB*)y->izq;
         y->izq = x->der;
 
-        if(x->der != NULL) {
+        if (x->der != NULL) {
             x->der->padre = y;
         }
 
         Nodo* padre_x = y->padre;
         x->padre = padre_x;
 
-        if(padre_x == NULL) {
+        if (padre_x == NULL) {
             raiz = x;
-        } else if(y == padre_x->izq) {
+        } else if (y == padre_x->izq) {
             padre_x->izq = x;
         } else {
             padre_x->der = x;
@@ -203,57 +236,56 @@ private:
     }
 
     void fixInsert(NodoRB* n) {
-        while(n != raiz && ((NodoRB*)n->padre)->color == ROJO) {
-            NodoRB* padre = getPadre(n);
+        while (n != raiz && ((NodoRB*)n->padre)->color == ROJO) {
+            NodoRB* padre  = getPadre(n);
             NodoRB* abuelo = getAbuelo(n);
-            
-            if(padre == abuelo->izq) {
+
+            if (padre == abuelo->izq) {
                 NodoRB* tio = getTio(n);
-                
-                if(tio != NULL && tio->color == ROJO) {
-                    // caso 1: tio rojo
-                    padre->color = NEGRO;
-                    tio->color = NEGRO;
+
+                // caso 1: tio rojo
+                if (tio != NULL && tio->color == ROJO) {
+                    padre->color  = NEGRO;
+                    tio->color    = NEGRO;
                     abuelo->color = ROJO;
                     n = abuelo;
                 } else {
                     // caso 2: n es hijo derecho
-                    if(n == padre->der) {
+                    if (n == padre->der) {
                         n = padre;
                         rotarIzquierda(n);
-                        padre = getPadre(n);
+                        padre  = getPadre(n);
                         abuelo = getAbuelo(n);
                     }
                     // caso 3: n es hijo izquierdo
-                    padre->color = NEGRO;
+                    padre->color  = NEGRO;
                     abuelo->color = ROJO;
                     rotarDerecha(abuelo);
                 }
             } else {
                 NodoRB* tio = getTio(n);
-                
-                if(tio != NULL && tio->color == ROJO) {
-                    // casp 1: tio rojo
-                    padre->color = NEGRO;
-                    tio->color = NEGRO;
+
+                if (tio != NULL && tio->color == ROJO) {
+                    padre->color  = NEGRO;
+                    tio->color    = NEGRO;
                     abuelo->color = ROJO;
                     n = abuelo;
                 } else {
                     // caso 2: n es hijo izquierdo
-                    if(n == padre->izq) {
+                    if (n == padre->izq) {
                         n = padre;
                         rotarDerecha(n);
-                        padre = getPadre(n);
+                        padre  = getPadre(n);
                         abuelo = getAbuelo(n);
                     }
-                    // caso 3 n es hijo derecho
-                    padre->color = NEGRO;
+                    // caso 3: n es hijo derecho
+                    padre->color  = NEGRO;
                     abuelo->color = ROJO;
                     rotarIzquierda(abuelo);
                 }
             }
         }
-        
+
         ((NodoRB*)raiz)->color = NEGRO;
     }
 };
