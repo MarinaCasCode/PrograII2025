@@ -112,6 +112,49 @@ public:
         return ArbolSVG::toSVG(outfilename);
     }
 
+    // Método delete con balanceo rojo-negro
+    bool deleteNode(void* dato) {
+        NodoRB* nodo = (NodoRB*)search(dato);
+        if (nodo == NULL) return false;
+
+        NodoRB* y = nodo;
+        NodoRB* x;
+        Color colorOriginalY = y->color;
+
+        if (nodo->izq == NULL) {
+            x = (NodoRB*)nodo->der;
+            reemplazarSubarbol(nodo, nodo->der);
+        } else if (nodo->der == NULL) {
+            x = (NodoRB*)nodo->izq;
+            reemplazarSubarbol(nodo, nodo->izq);
+        } else {
+            y = (NodoRB*)encontrarMinimo(nodo->der);
+            colorOriginalY = y->color;
+            x = (NodoRB*)y->der;
+
+            if (y->padre == nodo) {
+                if (x != NULL) x->padre = y;
+            } else {
+                reemplazarSubarbol(y, y->der);
+                y->der = nodo->der;
+                if (y->der != NULL) y->der->padre = y;
+            }
+
+            reemplazarSubarbol(nodo, y);
+            y->izq = nodo->izq;
+            if (y->izq != NULL) y->izq->padre = y;
+            y->color = nodo->color;
+        }
+
+        delete nodo;
+
+        if (colorOriginalY == NEGRO) {
+            fixDelete(x);
+        }
+
+        return true;
+    }
+
 private:
     int comparar(void* dato1, void* dato2) {
         if (T == T(string)) {
@@ -259,6 +302,120 @@ private:
         }
 
         ((NodoRB*)raiz)->color = NEGRO;
+    }
+
+    void reemplazarSubarbol(Nodo* u, Nodo* v) {
+        if (u->padre == NULL) {
+            raiz = v;
+        } else if (u == u->padre->izq) {
+            u->padre->izq = v;
+        } else {
+            u->padre->der = v;
+        }
+        if (v != NULL) {
+            v->padre = u->padre;
+        }
+    }
+
+    Nodo* encontrarMinimo(Nodo* nodo) {
+        while (nodo->izq != NULL) {
+            nodo = nodo->izq;
+        }
+        return nodo;
+    }
+
+    NodoRB* getHermano(NodoRB* n) {
+        if (n == NULL || n->padre == NULL) return NULL;
+        
+        if (n == n->padre->izq) {
+            return (NodoRB*)n->padre->der;
+        } else {
+            return (NodoRB*)n->padre->izq;
+        }
+    }
+
+    void fixDelete(NodoRB* x) {
+        while (x != raiz && (x == NULL || x->color == NEGRO)) {
+            if (x == NULL || (x->padre && x == x->padre->izq)) {
+                NodoRB* w = (NodoRB*)(x != NULL && x->padre ? x->padre->der : NULL);
+                
+                if (w == NULL) break;
+
+                // caso 1: hermano es rojo
+                if (w->color == ROJO) {
+                    w->color = NEGRO;
+                    ((NodoRB*)w->padre)->color = ROJO;
+                    rotarIzquierda((NodoRB*)w->padre);
+                    w = (NodoRB*)(x->padre ? x->padre->der : NULL);
+                }
+
+                if (w == NULL) break;
+
+                // caso 2: hermano es negro y ambos hijos son negros
+                if ((w->izq == NULL || ((NodoRB*)w->izq)->color == NEGRO) &&
+                    (w->der == NULL || ((NodoRB*)w->der)->color == NEGRO)) {
+                    w->color = ROJO;
+                    x = (NodoRB*)(x != NULL ? x->padre : NULL);
+                } else {
+                    // caso 3: hermano es negro, hijo izquierdo rojo, hijo derecho negro
+                    if (w->der == NULL || ((NodoRB*)w->der)->color == NEGRO) {
+                        if (w->izq != NULL) ((NodoRB*)w->izq)->color = NEGRO;
+                        w->color = ROJO;
+                        rotarDerecha(w);
+                        w = (NodoRB*)(x->padre ? x->padre->der : NULL);
+                    }
+
+                    // caso 4: hermano es negro, hijo derecho es rojo
+                    if (w != NULL) {
+                        w->color = (x != NULL && x->padre) ? ((NodoRB*)x->padre)->color : NEGRO;
+                        if (x != NULL && x->padre) ((NodoRB*)x->padre)->color = NEGRO;
+                        if (w->der != NULL) ((NodoRB*)w->der)->color = NEGRO;
+                        if (x != NULL && x->padre) rotarIzquierda((NodoRB*)x->padre);
+                    }
+                    x = (NodoRB*)raiz;
+                }
+            } else {
+                NodoRB* w = (NodoRB*)(x != NULL && x->padre ? x->padre->izq : NULL);
+                
+                if (w == NULL) break;
+
+                // caso 1: hermano es rojo
+                if (w->color == ROJO) {
+                    w->color = NEGRO;
+                    ((NodoRB*)w->padre)->color = ROJO;
+                    rotarDerecha((NodoRB*)w->padre);
+                    w = (NodoRB*)(x->padre ? x->padre->izq : NULL);
+                }
+
+                if (w == NULL) break;
+
+                // caso 2: hermano es negro y ambos hijos son negros
+                if ((w->der == NULL || ((NodoRB*)w->der)->color == NEGRO) &&
+                    (w->izq == NULL || ((NodoRB*)w->izq)->color == NEGRO)) {
+                    w->color = ROJO;
+                    x = (NodoRB*)(x != NULL ? x->padre : NULL);
+                } else {
+                    // caso 3: hermano es negro, hijo derecho rojo, hijo izquierdo negro
+                    if (w->izq == NULL || ((NodoRB*)w->izq)->color == NEGRO) {
+                        if (w->der != NULL) ((NodoRB*)w->der)->color = NEGRO;
+                        w->color = ROJO;
+                        rotarIzquierda(w);
+                        w = (NodoRB*)(x->padre ? x->padre->izq : NULL);
+                    }
+
+                    // caso 4: hermano es negro, hijo izquierdo es rojo
+                    if (w != NULL) {
+                        w->color = (x != NULL && x->padre) ? ((NodoRB*)x->padre)->color : NEGRO;
+                        if (x != NULL && x->padre) ((NodoRB*)x->padre)->color = NEGRO;
+                        if (w->izq != NULL) ((NodoRB*)w->izq)->color = NEGRO;
+                        if (x != NULL && x->padre) rotarDerecha((NodoRB*)x->padre);
+                    }
+                    x = (NodoRB*)raiz;
+                }
+            }
+        }
+
+        if (x != NULL) x->color = NEGRO;
     }
 };
 
