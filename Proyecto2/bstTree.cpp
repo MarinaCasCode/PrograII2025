@@ -31,8 +31,10 @@ class Nodo{
     der = NULL;
     padre = NULL;
   }
-  
-  string toString(){
+
+  virtual ~Nodo(){}
+
+  virtual string toString(){
     stringstream ss;
     if(T == "int"){
       int* dato = (int*)this->dato;
@@ -363,16 +365,16 @@ class ArbolSVG : public ArbolBST {
 
   string toSVG(){
     NodoSVG* root = (NodoSVG*)raiz;
-    int svgWidth = 800;
-    int svgHeight = 600;
-    int horizontalSpacing = 50;
-    int verticalSpacing = 80;
+      int anchoSVG = 800;
+      int altoSVG  = 600;
+      int espacioHorizontal = 50;
+      int espacioVertical   = 80;
 
-    int xRef = 1;
-    asignarCoordenadas(root, 0, xRef, horizontalSpacing, verticalSpacing);
+      int contadorX = 1;
+      asignarCoordenadas(root, 0, contadorX, espacioHorizontal, espacioVertical);
 
-    stringstream svgContent;
-    svgContent << "<svg viewBox=\"0 0 200 200\" xmlns=\"http://www.w3.org/2000/svg\" style=\"width: 100%; height: auto;\">";
+      stringstream svgContent;
+      svgContent << "<svg viewBox=\"0 0 " << anchoSVG << " " << altoSVG << "\" xmlns=\"http://www.w3.org/2000/svg\" style=\"width: 100%; height: auto;\">";
 
     auto dibujarNodo = [&](const auto &self, NodoSVG* node, stringstream& svgContent) -> void {
       if(node == NULL) return;
@@ -405,10 +407,9 @@ class ArbolSVG : public ArbolBST {
       return -1;
     }
     
-    size_t fileLen = 0;
     struct stat fileStat;
     if( ( stat (filename.c_str(), &fileStat) == 0) ){
-      fileLen = fileStat.st_size;
+      // plantilla disponible (fileStat) si se necesita
     }
     
     ifstream fileIn;

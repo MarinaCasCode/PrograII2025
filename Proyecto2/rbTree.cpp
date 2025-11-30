@@ -65,18 +65,16 @@ public:
         fixInsert(nuevoNodo);
     }
 
-    string toSVG() {
+    string getSVGContent() {
         NodoSVG* root = (NodoSVG*)raiz;
-        int svgWidth = 800;
-        int svgHeight = 600;
-        int horizontalSpacing = 50;
-        int verticalSpacing = 80;
+        int espacioHorizontal = 50;
+        int espacioVertical = 80;
 
-        int xRef = 1;
-        asignarCoordenadas(root, 0, xRef, horizontalSpacing, verticalSpacing);
+        int contadorX = 1;
+        asignarCoordenadas(root, 0, contadorX, espacioHorizontal, espacioVertical);
 
         stringstream svgContent;
-        svgContent << "<svg viewBox=\"0 0 200 200\" xmlns=\"http://www.w3.org/2000/svg\" style=\"width: 100%; height: auto;\">";
+        svgContent << "<svg viewBox=\"0 0 1000 1000\" xmlns=\"http://www.w3.org/2000/svg\" style=\"width: 100%; height: auto;\">";
 
         auto dibujarNodo = [&](const auto &self, NodoSVG* node, stringstream& svgContent) -> void {
             if(node == NULL) return;
@@ -86,7 +84,7 @@ public:
             if(node->izq != NULL){
                 svgContent << "<line x1=\""<<node->x<<"\" y1=\""<<node->y<<"\" x2=\""<<((NodoSVG*)node->izq)->x<<"\" y2=\""<<((NodoSVG*)node->izq)->y<<"\" stroke=\"black\"/>";
             }
-            
+
             if(node->der != NULL){
                 svgContent << "<line x1=\""<<node->x<<"\" y1=\""<<node->y<<"\" x2=\""<<((NodoSVG*)node->der)->x<<"\" y2=\""<<((NodoSVG*)node->der)->y<<"\" stroke=\"black\"/>";
             }
@@ -108,8 +106,64 @@ public:
     }
 
     int toSVG(string outfilename) {
-        string svg = toSVG();
-        return ArbolSVG::toSVG(outfilename);
+        string filename = "svgTreeViewerTemplate.html";
+        if(outfilename.compare(filename) == 0){
+            cout << "No se puede sobrescribir el archivo" << filename << endl;
+            return -1;
+        }
+
+        struct stat fileStat;
+        if( ( stat (filename.c_str(), &fileStat) == 0) ){
+            // template exists
+        }
+
+        ifstream fileIn;
+        fileIn.open(filename.c_str(), ios::in | ios::binary );
+        if( !fileIn.is_open() ){
+            cout << "No se pudo abrir el archivo" << filename << endl;
+            return -1;
+        }
+
+        stringstream svgHTMLJS;
+        svgHTMLJS.str(string());
+        svgHTMLJS << fileIn.rdbuf();
+        fileIn.close();
+
+        string svgHTMLJS_str = svgHTMLJS.str();
+        string svg = getSVGContent();
+
+        string replacePattern = "%s";
+        int replacePatternIndex = svgHTMLJS_str.find(replacePattern);
+        if( replacePatternIndex == -1 ){
+            cout << "No se pudo encontrar el patron de reemplazo." << endl;
+            return -1;
+        }
+
+        ofstream fileOut;
+        fileOut.open(outfilename.c_str(), ios::out | ios::binary );
+        if( !fileOut.is_open() ){
+            cout << "No se pudo abrir el archivo" << outfilename << endl;
+            return -1;
+        }
+        fileOut << svgHTMLJS_str.substr(0, replacePatternIndex);
+        fileOut << svg;
+        fileOut << svgHTMLJS_str.substr( replacePatternIndex + replacePattern.length() );
+        fileOut.close();
+
+        cout << "Se genero el visualizador '"<< outfilename <<"'." << endl;
+
+        stringstream openBrowser;
+        #if _WIN32
+        openBrowser << "start " <<  outfilename;
+        #elif __APPLE__
+        openBrowser << "open " <<  outfilename;
+        #elif __linux__
+        openBrowser << "xdg-open " <<  outfilename;
+        #endif
+        string openBrowserStr = openBrowser.str();
+        system(openBrowserStr.c_str());
+
+        return 0;
     }
 
     // Método delete con balanceo rojo-negro
