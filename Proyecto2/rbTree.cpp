@@ -8,14 +8,6 @@ using namespace std;
 
 enum Color { ROJO, NEGRO };
 
-class ParClaveValorBase {
-public:
-    string clave;
-
-    ParClaveValorBase() : clave("") { }
-    ParClaveValorBase(const string& k) : clave(k) { }
-};
-
 class NodoRB : public NodoSVG {
 public:
     Color color;
@@ -73,7 +65,6 @@ public:
         fixInsert(nuevoNodo);
     }
 
-    // sobreescribir toSVG para mostrar colores
     string toSVG() {
         NodoSVG* root = (NodoSVG*)raiz;
         int svgWidth = 800;
@@ -100,9 +91,8 @@ public:
                 svgContent << "<line x1=\""<<node->x<<"\" y1=\""<<node->y<<"\" x2=\""<<((NodoSVG*)node->der)->x<<"\" y2=\""<<((NodoSVG*)node->der)->y<<"\" stroke=\"black\"/>";
             }
             
-            // usar color rojo o negro segun el nodo RB
             string colorFill = (nodeRB->color == ROJO) ? "red" : "black";
-            string textColor = (nodeRB->color == ROJO) ? "white" : "white";
+            string textColor = "white";
             
             svgContent << "<circle cx=\""<<node->x<<"\" cy=\""<<node->y<<"\" r=\"20\" fill=\""<<colorFill<<"\" stroke=\"black\"/>";
             svgContent << "<text x=\""<<node->x<<"\" y=\""<<(node->y + 5)<<"\" text-anchor=\"middle\" font-size=\"12\" fill=\""<<textColor<<"\">"<<node->toString()<<"</text>";
@@ -122,25 +112,6 @@ public:
         return ArbolSVG::toSVG(outfilename);
     }
 
-    // búsqueda binaria usando comparar()
-    Nodo* search(void* dato) {
-        Nodo* it = raiz;
-
-        while (it != NULL) {
-            int cmp = comparar(dato, it->dato);
-
-            if (cmp == 0) {
-                return it;
-            } else if (cmp < 0) {
-                it = it->izq;
-            } else {
-                it = it->der;
-            }
-        }
-        return NULL;
-    }
-
-
 private:
     int comparar(void* dato1, void* dato2) {
         if (T == T(string)) {
@@ -155,9 +126,9 @@ private:
             else if (*d1 < *d2) return -1;
             else return 1;
         }
-        else if (T == "pair") {
-            ParClaveValorBase* p1 = (ParClaveValorBase*)dato1;
-            ParClaveValorBase* p2 = (ParClaveValorBase*)dato2;
+        else if (T == "ParClaveValor") {
+            ParClaveValor<int>* p1 = (ParClaveValor<int>*)dato1;
+            ParClaveValor<int>* p2 = (ParClaveValor<int>*)dato2;
             return p1->clave.compare(p2->clave);
         }
         else {
@@ -266,6 +237,7 @@ private:
                 NodoRB* tio = getTio(n);
 
                 if (tio != NULL && tio->color == ROJO) {
+                    // caso 1: tio rojo
                     padre->color  = NEGRO;
                     tio->color    = NEGRO;
                     abuelo->color = ROJO;
