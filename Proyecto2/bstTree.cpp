@@ -15,7 +15,7 @@ public:
     string clave;
     T valor;
 
-    ParClaveValor() : clave(""), valor(T()) { }
+    ParClaveValor() : clave(""), valor() { }
     ParClaveValor(const string& k, const T& v) : clave(k), valor(v) { }
     string toString() const { return clave; }
 };
@@ -43,8 +43,16 @@ class Nodo{
       ss << *dato;
     }
     else if(T == "ParClaveValor"){
-      ParClaveValor<int>* dato = (ParClaveValor<int>*)this->dato;
-      ss << dato->clave;
+      // Usar un cast generico y acceder al metodo toString
+      // que todas las instancias de ParClaveValor tienen
+      void* ptr = this->dato;
+      // Acceder a la clave que es el primer campo de ParClaveValor
+      string* clave = (string*)ptr;
+      if(clave != NULL && !clave->empty()) {
+        ss << *clave;
+      } else {
+        ss << "{null}";
+      }
     }
     else{
       ss << "{" << this->dato << "}";
@@ -194,13 +202,43 @@ class ArbolBST{
   
   void inorder(Nodo* n, stringstream& ss){
     if(n->izq != NULL) inorder(n->izq,ss);
+    ss << n->toString() << ", ";
     if(n->der != NULL) inorder(n->der,ss);
+  }
+  
+  void preorder(Nodo* n, stringstream& ss){
+    ss << n->toString() << ", ";
+    if(n->izq != NULL) preorder(n->izq,ss);
+    if(n->der != NULL) preorder(n->der,ss);
+  }
+  
+  void postorder(Nodo* n, stringstream& ss){
+    if(n->izq != NULL) postorder(n->izq,ss);
+    if(n->der != NULL) postorder(n->der,ss);
     ss << n->toString() << ", ";
   }
   
   string toString(){
+    if(raiz == NULL) return "";
+    
     stringstream ss;
+    
+    ss << "Preorder: ";
+    preorder(raiz, ss);
+    ss << "\n";
+    
+    ss << "Inorder: ";
+    inorder(raiz, ss);
+    ss << "\n";
+    
+    ss << "Postorder: ";
+    postorder(raiz, ss);
+    ss << "\n";
+    
+    ss << "Por niveles: ";
     porNiveles(ss);
+    ss << "\n";
+    
     return ss.str();
   }
 };

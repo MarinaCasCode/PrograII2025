@@ -8,22 +8,6 @@
 using namespace std;
 
 template<typename T>
-class ParClaveValor {
-public:
-    string clave;
-    T valor;
-
-    ParClaveValor() : clave(""), valor(T()) { }
-
-    ParClaveValor(const string& k, const T& v)
-        : clave(k), valor(v) { }
-
-    string toString() const {
-        return clave;
-    }
-};
-
-template<typename T>
 class RBHash {
 private:
     ArbolRB* arbol;
@@ -43,14 +27,16 @@ public:
 
     T& operator[](const string& clave) {
         // crear objeto temporal para busqueda
-        ParClaveValor<T> temp(clave, T());
+        T valorDefault{};
+        ParClaveValor<T> temp(clave, valorDefault);
         
         // buscar en el arbol
         Nodo* nodo = arbol->search(&temp);
         
         if (nodo == NULL) {
             // si no existe, crear nuevo par e insertarlo
-            ParClaveValor<T>* nuevoPar = new ParClaveValor<T>(clave, T());
+            T valorInicial{};
+            ParClaveValor<T>* nuevoPar = new ParClaveValor<T>(clave, valorInicial);
             arbol->insert(nuevoPar);
             nodo = arbol->search(&temp);
         }

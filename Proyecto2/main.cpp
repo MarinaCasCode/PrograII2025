@@ -18,7 +18,7 @@ int main() {
     }
     cout << endl << endl;
 
-    cout << "recorrido por niveles del arbol RB: " << endl;
+    cout << "recorridos del arbol RB: " << endl;
     cout << arbol.toString() << endl;
 
     cout << "generando visualizacion SVG" << endl;
@@ -57,7 +57,7 @@ int main() {
     rankingMundial.generarSVG("mundiales_rbhash.html");
     datosPersona.generarSVG("persona_rbhash.html");
 
-    cout << "Visualizaciones generadas exitosamente!" << endl;
+    cout << "Visualizaciones generadas exitosamente" << endl;
 
     return 0;
 }
