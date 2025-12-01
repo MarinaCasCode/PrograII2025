@@ -7,7 +7,6 @@ using namespace std;
 
 enum Color { ROJO, NEGRO };
 
-// ==================== NODO ROJO-NEGRO ====================
 template<typename T>
 class NodoRB : public NodoSVG<T> {
 public:
@@ -31,7 +30,6 @@ public:
     }
 };
 
-// ==================== ARBOL ROJO-NEGRO ====================
 template<typename T>
 class ArbolRB : public ArbolSVG<T> {
 private:
@@ -346,37 +344,38 @@ public:
         
         stringstream svgContent;
         svgContent << "<svg viewBox=\"0 0 2000 2000\" xmlns=\"http://www.w3.org/2000/svg\" style=\"width: 100%; height: auto;\">";
-        
-        function<void(NodoRB<T>*)> dibujar = [&](NodoRB<T>* node) {
-            if (!node) return;
-            
-            if (node->izq) {
-                NodoRB<T>* izq = static_cast<NodoRB<T>*>(node->izq);
-                svgContent << "<line x1=\"" << node->x << "\" y1=\"" << node->y 
-                          << "\" x2=\"" << izq->x << "\" y2=\"" << izq->y << "\" stroke=\"black\"/>";
-            }
-            if (node->der) {
-                NodoRB<T>* der = static_cast<NodoRB<T>*>(node->der);
-                svgContent << "<line x1=\"" << node->x << "\" y1=\"" << node->y 
-                          << "\" x2=\"" << der->x << "\" y2=\"" << der->y << "\" stroke=\"black\"/>";
-            }
-            
-            string colorFill = (node->color == ROJO) ? "red" : "black";
-            string textColor = "white";
-            
-            svgContent << "<circle cx=\"" << node->x << "\" cy=\"" << node->y 
-                      << "\" r=\"20\" fill=\"" << colorFill << "\" stroke=\"black\"/>";
-            svgContent << "<text x=\"" << node->x << "\" y=\"" << (node->y + 5) 
-                      << "\" text-anchor=\"middle\" font-size=\"12\" fill=\"" << textColor << "\">" 
-                      << node->toString() << "</text>";
-            
-            dibujar(static_cast<NodoRB<T>*>(node->izq));
-            dibujar(static_cast<NodoRB<T>*>(node->der));
-        };
-        
-        dibujar(static_cast<NodoRB<T>*>(root));
+
+        dibujarRB(static_cast<NodoRB<T>*>(root), svgContent);
         svgContent << "</svg>";
         return svgContent.str();
+    }
+
+private:
+    void dibujarRB(NodoRB<T>* node, stringstream& svgContent) {
+        if (!node) return;
+
+        if (node->izq) {
+            NodoRB<T>* izq = static_cast<NodoRB<T>*>(node->izq);
+            svgContent << "<line x1=\"" << node->x << "\" y1=\"" << node->y
+                       << "\" x2=\"" << izq->x << "\" y2=\"" << izq->y << "\" stroke=\"black\"/>";
+        }
+        if (node->der) {
+            NodoRB<T>* der = static_cast<NodoRB<T>*>(node->der);
+            svgContent << "<line x1=\"" << node->x << "\" y1=\"" << node->y
+                       << "\" x2=\"" << der->x << "\" y2=\"" << der->y << "\" stroke=\"black\"/>";
+        }
+
+        string colorFill = (node->color == ROJO) ? "red" : "black";
+        string textColor = "white";
+
+        svgContent << "<circle cx=\"" << node->x << "\" cy=\"" << node->y
+                   << "\" r=\"20\" fill=\"" << colorFill << "\" stroke=\"black\"/>";
+        svgContent << "<text x=\"" << node->x << "\" y=\"" << (node->y + 5)
+                   << "\" text-anchor=\"middle\" font-size=\"12\" fill=\"" << textColor << "\">"
+                   << node->toString() << "</text>";
+
+        dibujarRB(static_cast<NodoRB<T>*>(node->izq), svgContent);
+        dibujarRB(static_cast<NodoRB<T>*>(node->der), svgContent);
     }
 };
 

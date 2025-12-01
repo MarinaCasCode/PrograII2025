@@ -4,10 +4,9 @@
 using namespace std;
 
 int main() {
-    cout << "=== PRUEBA DE RBHash (Arbol Rojo-Negro como Hash) ===" << endl << endl;
+    cout << "prueba d RBHash" << endl << endl;
     
-    cout << "1. RBHash<int> - Ranking de Copas Mundiales" << endl;
-    cout << "=============================================" << endl;
+    cout << "RBHash<int> rnking de copas mundiales" << endl;
     
     RBHash<int> rankingMundial;
     
@@ -31,8 +30,7 @@ int main() {
     rankingMundial.toSVG("Mundiales.html");
     cout << "Archivo 'Mundiales.html' generado exitosamente." << endl;
     
-    cout << endl << "2. RBHash<string> - Datos Personales" << endl;
-    cout << "======================================" << endl;
+    cout << endl << "RBHash<string> datos personales" << endl;
     
     RBHash<string> datosPersona;
     
@@ -51,20 +49,17 @@ int main() {
     datosPersona.toSVG("Persona.html");
     cout << "Archivo 'Persona.html' generado exitosamente." << endl;
     
-    cout << endl << "3. Prueba de Copia y Asignacion" << endl;
-    cout << "==================================" << endl;
+    cout << endl << "prueba de copia y ssignacion" << endl;
     
     RBHash<int> copiaRanking = rankingMundial;
-    cout << "Copia - Brasil: " << copiaRanking["Brasil"] << " copas" << endl;
-    cout << "Copia - Argentina: " << copiaRanking["Argentina"] << " copas" << endl;
+    cout << "Copia Brasil: " << copiaRanking["Brasil"] << " copas" << endl;
+    cout << "Copia Argentina: " << copiaRanking["Argentina"] << " copas" << endl;
     
     // Modificar la copia
     copiaRanking["Brasil"] = 6;
-    cout << "Copia modificada - Brasil: " << copiaRanking["Brasil"] << " copas" << endl;
-    cout << "Original - Brasil: " << rankingMundial["Brasil"] << " copas (debe seguir siendo 5)" << endl;
+    cout << "Copia modificada Brasil: " << copiaRanking["Brasil"] << " copas" << endl;
+    cout << "Original Brasil: " << rankingMundial["Brasil"] << " copas" << endl;
     
-    cout << endl << "=== TODAS LAS PRUEBAS COMPLETADAS ===" << endl;
-    cout << "Abre los archivos HTML en tu navegador para ver los arboles." << endl;
     
     return 0;
 }
