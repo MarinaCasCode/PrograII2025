@@ -27,16 +27,19 @@ class ArbolRB : public ArbolSVG {
 public:
     ArbolRB(string T) : ArbolSVG(T) { }
 
+    // insercion con balanceo automatico rojo-negro
     void insert(void* dato) {
         NodoRB* nuevoNodo = new NodoRB(dato);
         nuevoNodo->T = T;
 
+        // si el arbol esta vacio, la raiz es negra
         if (raiz == NULL) {
             raiz = nuevoNodo;
             ((NodoRB*)raiz)->color = NEGRO;
             return;
         }
 
+        // insercion BST normal
         Nodo* it = raiz;
         Nodo* p  = NULL;
         char donde = 'D';
@@ -62,9 +65,11 @@ public:
 
         nuevoNodo->padre = p;
 
+        // arreglar violaciones rojo-negro
         fixInsert(nuevoNodo);
     }
 
+    // generar contenido SVG con circulos coloreados
     string getSVGContent() {
         NodoSVG* root = (NodoSVG*)raiz;
         int espacioHorizontal = 50;
@@ -211,19 +216,19 @@ public:
 
 private:
     int comparar(void* dato1, void* dato2) {
-        if (T == T(string)) {
+        if (T == TYPESTR(string)) {
             string* d1 = (string*)dato1;
             string* d2 = (string*)dato2;
             return d1->compare(*d2);
         }
-        else if (T == T(int) || T == T(float) || T == T(double)) {
+        else if (T == TYPESTR(int) || T == TYPESTR(float) || T == TYPESTR(double)) {
             int* d1 = (int*)dato1;
             int* d2 = (int*)dato2;
             if (*d1 == *d2) return 0;
             else if (*d1 < *d2) return -1;
             else return 1;
         }
-        else if (T == "ParClaveValor") {
+        else if (T == "pair") {
             ParClaveValor<int>* p1 = (ParClaveValor<int>*)dato1;
             ParClaveValor<int>* p2 = (ParClaveValor<int>*)dato2;
             return p1->clave.compare(p2->clave);
@@ -303,7 +308,9 @@ private:
         y->padre = x;
     }
 
+    // arreglar violaciones rojo-negro tras insercion
     void fixInsert(NodoRB* n) {
+        // mientras el padre sea rojo, hay violacion
         while (n != raiz && ((NodoRB*)n->padre)->color == ROJO) {
             NodoRB* padre  = getPadre(n);
             NodoRB* abuelo = getAbuelo(n);
@@ -311,21 +318,21 @@ private:
             if (padre == abuelo->izq) {
                 NodoRB* tio = getTio(n);
 
-                // caso 1: tio rojo
+                // caso 1: tio rojo - recolorear
                 if (tio != NULL && tio->color == ROJO) {
                     padre->color  = NEGRO;
                     tio->color    = NEGRO;
                     abuelo->color = ROJO;
                     n = abuelo;
                 } else {
-                    // caso 2: n es hijo derecho
+                    // caso 2: n es hijo derecho - rotar
                     if (n == padre->der) {
                         n = padre;
                         rotarIzquierda(n);
                         padre  = getPadre(n);
                         abuelo = getAbuelo(n);
                     }
-                    // caso 3: n es hijo izquierdo
+                    // caso 3: n es hijo izquierdo - rotar y recolorear
                     padre->color  = NEGRO;
                     abuelo->color = ROJO;
                     rotarDerecha(abuelo);
@@ -333,21 +340,21 @@ private:
             } else {
                 NodoRB* tio = getTio(n);
 
+                // caso 1: tio rojo - recolorear
                 if (tio != NULL && tio->color == ROJO) {
-                    // caso 1: tio rojo
                     padre->color  = NEGRO;
                     tio->color    = NEGRO;
                     abuelo->color = ROJO;
                     n = abuelo;
                 } else {
-                    // caso 2: n es hijo izquierdo
+                    // caso 2: n es hijo izquierdo - rotar
                     if (n == padre->izq) {
                         n = padre;
                         rotarDerecha(n);
                         padre  = getPadre(n);
                         abuelo = getAbuelo(n);
                     }
-                    // caso 3: n es hijo derecho
+                    // caso 3: n es hijo derecho - rotar y recolorear
                     padre->color  = NEGRO;
                     abuelo->color = ROJO;
                     rotarIzquierda(abuelo);
