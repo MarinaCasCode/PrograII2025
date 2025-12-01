@@ -38,7 +38,9 @@ public:
     }
     
     string toString() const {
-        return clave;
+        stringstream ss;
+        ss << clave << ":" << valor;
+        return ss.str();
     }
 };
 
@@ -424,9 +426,9 @@ private:
         }
 
         svgContent << "<circle cx=\"" << node->x << "\" cy=\"" << node->y
-                   << "\" r=\"20\" fill=\"lightblue\" stroke=\"black\"/>";
+                   << "\" r=\"50\" fill=\"lightblue\" stroke=\"black\"/>";
         svgContent << "<text x=\"" << node->x << "\" y=\"" << (node->y + 5)
-                   << "\" text-anchor=\"middle\" font-size=\"12\" fill=\"black\">"
+                   << "\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"bold\" fill=\"black\">"
                    << node->toString() << "</text>";
 
         dibujarSVG(static_cast<NodoSVG<T>*>(node->izq), svgContent);

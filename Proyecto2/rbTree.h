@@ -369,9 +369,9 @@ private:
         string textColor = "white";
 
         svgContent << "<circle cx=\"" << node->x << "\" cy=\"" << node->y
-                   << "\" r=\"20\" fill=\"" << colorFill << "\" stroke=\"black\"/>";
+                   << "\" r=\"50\" fill=\"" << colorFill << "\" stroke=\"black\"/>";
         svgContent << "<text x=\"" << node->x << "\" y=\"" << (node->y + 5)
-                   << "\" text-anchor=\"middle\" font-size=\"12\" fill=\"" << textColor << "\">"
+                   << "\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"bold\" fill=\"" << textColor << "\">"
                    << node->toString() << "</text>";
 
         dibujarRB(static_cast<NodoRB<T>*>(node->izq), svgContent);
