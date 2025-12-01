@@ -24,8 +24,60 @@ public:
 };
 
 class ArbolRB : public ArbolSVG {
+private:
+    void** datosCreados;
+    int capacidad;
+    int cantidad;
+
+    void expandirCapacidad() {
+        int nuevaCapacidad = capacidad * 3;
+        void** nuevoArray = new void*[nuevaCapacidad];
+        
+        for (int i = 0; i < cantidad; i++) {
+            nuevoArray[i] = datosCreados[i];
+        }
+        
+        delete[] datosCreados;
+        datosCreados = nuevoArray;
+        capacidad = nuevaCapacidad;
+    }
+
 public:
-    ArbolRB(string T) : ArbolSVG(T) { }
+    ArbolRB(string T) : ArbolSVG(T) {
+        capacidad = 5;
+        cantidad = 0;
+        datosCreados = new void*[capacidad];
+    }
+
+    ~ArbolRB() {
+        for (int i = 0; i < cantidad; i++) {
+            if (T == "int") {
+                delete (int*)datosCreados[i];
+            } else if (T == "float") {
+                delete (float*)datosCreados[i];
+            } else if (T == "double") {
+                delete (double*)datosCreados[i];
+            } else if (T == "string") {
+                delete (string*)datosCreados[i];
+            }
+        }
+        delete[] datosCreados;
+    }
+
+    void insert(int valor) {
+        int* datoPtr = new int(valor);
+        
+        if (cantidad >= capacidad) {
+            expandirCapacidad();
+        }
+        
+        datosCreados[cantidad++] = datoPtr;
+        insert((void*)datoPtr);
+    }
+
+    void insert(int* dato) {
+        insert((void*)dato);
+    }
 
     // insercion con balanceo automatico rojo-negro
     void insert(void* dato) {
