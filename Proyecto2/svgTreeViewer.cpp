@@ -1,7 +1,3 @@
-// Demo program. Define SVG_TREE_VIEWER_MAIN to compile this file as a standalone
-// executable. When building the whole project (all .cpp files), leave it undefined
-// to avoid multiple main() definitions.
-
 #if defined(SVG_TREE_VIEWER_MAIN)
 
 #include <iostream>

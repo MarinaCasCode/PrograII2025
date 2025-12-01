@@ -56,11 +56,16 @@ g++ -o proyecto2 main.cpp
 ```
 Proyecto2/
 │── main.cpp
-│── bstTree.cpp
-│── rbTree.cpp
-│── rbHash.cpp
+│── bstTree.h
+│── rbTree.h
+│── RBHash.h
+│── NodoRB.h
 │── svgTreeViewer.cpp
 │── svgTreeViewerTemplate.html
+│── design/
+│   │── arbolRojiNegro.md
+│   │── pseudocodigo.md
+│   └── Instrucciones_Proyecto_2.pdf
 └── README.md
 ```
 
@@ -70,9 +75,10 @@ Proyecto2/
 
 | Archivo | Rol |
 |---------|-----|
-| `bstTree.cpp` | Árbol binario base con búsqueda, recorridos y delete básico |
-| `rbTree.cpp` | Implementación del árbol rojinegro con rotaciones y balanceo |
-| `rbHash.cpp` | Hash basado en árbol rojo-negro, con `operator[]` |
+| `bstTree.h` | Árbol binario base con búsqueda, recorridos y delete básico |
+| `rbTree.h` | Implementación del árbol rojinegro con rotaciones y balanceo |
+| `RBHash.h` | Hash basado en árbol rojo-negro, con `operator[]` |
+| `NodoRB.h` | Definición del nodo rojo-negro con color |
 | `svgTreeViewer.cpp` | Generación del archivo SVG/HTML interactivo |
 | `main.cpp` | Programa demostrativo del proyecto |
 
