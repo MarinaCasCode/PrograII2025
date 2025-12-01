@@ -168,6 +168,43 @@ protected:
         return nodo;
     }
 
+    Nodo<T>* deleteRec(Nodo<T>* nodo, T* dato) {
+        if (!nodo) return nullptr;
+        
+        if (*dato < *(nodo->dato)) {
+            nodo->izq = deleteRec(nodo->izq, dato);
+            if (nodo->izq) nodo->izq->padre = nodo;
+        } else if (*dato > *(nodo->dato)) {
+            nodo->der = deleteRec(nodo->der, dato);
+            if (nodo->der) nodo->der->padre = nodo;
+        } else {
+            // caso 1: sin hijos o un hijo
+            if (!nodo->izq) {
+                Nodo<T>* temp = nodo->der;
+                delete nodo;
+                return temp;
+            } else if (!nodo->der) {
+                Nodo<T>* temp = nodo->izq;
+                delete nodo;
+                return temp;
+            }
+            
+            // caso 2: dos hijos
+            Nodo<T>* temp = encontrarMinimo(nodo->der);
+            
+            // copiar el dato del sucesor
+            if (nodo->ownsData && nodo->dato) delete nodo->dato;
+            nodo->dato = temp->dato;
+            nodo->ownsData = temp->ownsData;
+            temp->ownsData = false;
+            
+            // eliminar el sucesor
+            nodo->der = deleteRec(nodo->der, temp->dato);
+            if (nodo->der) nodo->der->padre = nodo;
+        }
+        return nodo;
+    }
+
 public:
     ArbolBST() : raiz(nullptr) {}
     // constructor de copia realiza clonacion profunda
@@ -223,6 +260,11 @@ public:
             else it = it->der;
         }
         return nullptr;
+    }
+    
+    bool deleteNode(T* dato) {
+        raiz = deleteRec(raiz, dato);
+        return true;
     }
     
     string toString() {
