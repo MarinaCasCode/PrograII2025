@@ -6,7 +6,7 @@
 
 using namespace std;
 
-#define T(t) #t
+#define TYPESTR(t) #t
 
 // Declaracion forward para ParClaveValor
 template<typename T>
@@ -44,7 +44,7 @@ class Nodo{
       string* dato = (string*)this->dato;
       ss << *dato;
     }
-    else if(T == "ParClaveValor"){
+    else if(T == "pair"){
       // Usar un cast generico y acceder al metodo toString
       // que todas las instancias de ParClaveValor tienen
       void* ptr = this->dato;
@@ -95,7 +95,7 @@ class ArbolBST{
       
       while(it != NULL){
         p = it;
-        if( T == T(string) ){
+        if( T == TYPESTR(string) ){
           string* d1 = (string*)dato;
           string* d2 = (string*)it->dato;
           if( d1->compare(*d2) < 0 ){
@@ -105,7 +105,7 @@ class ArbolBST{
             it = it->der; donde = 'D';
           }
         }
-        else if( T == T(int) || T == T(float) || T == T(double) ){
+        else if( T == TYPESTR(int) || T == TYPESTR(float) || T == TYPESTR(double) ){
           int* d1 = (int*)dato;
           int* d2 = (int*)it->dato;
           if( *d1 < *d2 ){
@@ -115,7 +115,7 @@ class ArbolBST{
             it = it->der; donde = 'D';
           }
         }
-        else if( T == "ParClaveValor" ){
+        else if( T == "pair" ){
           ParClaveValor<int>* d1 = (ParClaveValor<int>*)dato;
           ParClaveValor<int>* d2 = (ParClaveValor<int>*)it->dato;
           if( d1->clave < d2->clave ){
@@ -157,7 +157,7 @@ class ArbolBST{
         else if(*d1 > *d2) cmp = 1;
         else cmp = 0;
       }
-      else if(T == "ParClaveValor") {
+      else if(T == "pair") {
         ParClaveValor<int>* d1 = (ParClaveValor<int>*)dato;
         ParClaveValor<int>* d2 = (ParClaveValor<int>*)it->dato;
         cmp = d1->clave.compare(d2->clave);
@@ -232,19 +232,19 @@ class ArbolBST{
     
     // Comparar para encontrar el nodo a eliminar
     int cmp = 0;
-    if(T == T(string)){
+    if(T == TYPESTR(string)){
       string* d1 = (string*)dato;
       string* d2 = (string*)nodo->dato;
       cmp = d1->compare(*d2);
     }
-    else if(T == T(int) || T == T(float) || T == T(double)){
+    else if(T == TYPESTR(int) || T == TYPESTR(float) || T == TYPESTR(double)){
       int* d1 = (int*)dato;
       int* d2 = (int*)nodo->dato;
       if(*d1 == *d2) cmp = 0;
       else if(*d1 < *d2) cmp = -1;
       else cmp = 1;
     }
-    else if(T == "ParClaveValor"){
+    else if(T == "pair"){
       string* clave1 = (string*)dato;
       string* clave2 = (string*)nodo->dato;
       cmp = clave1->compare(*clave2);
