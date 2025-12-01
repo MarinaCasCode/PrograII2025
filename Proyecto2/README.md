@@ -30,9 +30,8 @@ El proyecto genera archivos `.html` que muestran gráficamente el árbol rojineg
 
 Ejemplo de archivos generados:
 ```
-arbolRB_test.html
-mundiales_rbhash.html
-persona_rbhash.html
+Persona.html
+Mundiales.html
 ```
 
 ---
