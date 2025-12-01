@@ -1,0 +1,12 @@
+# Ignorar archivos generados por el programa
+*.html
+arbol
+*.o
+
+# Ignorar archivos del sistema
+.DS_Store
+*.swp
+*.swo
+*~
+.vscode/
+.idea/

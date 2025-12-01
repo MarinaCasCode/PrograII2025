@@ -1,44 +1,70 @@
 #include <iostream>
-#include "rbTree.cpp"
 #include "RBHash.h"
 
 using namespace std;
 
 int main() {
-    // test 1: RBHash con datos enteros
-    cout << "RBHash<int> ranking de copas mundiales" << endl;
+    cout << "=== PRUEBA DE RBHash (Arbol Rojo-Negro como Hash) ===" << endl << endl;
+    
+    cout << "1. RBHash<int> - Ranking de Copas Mundiales" << endl;
+    cout << "=============================================" << endl;
+    
     RBHash<int> rankingMundial;
-
-    // insertar pares clave-valor
+    
     rankingMundial["Brasil"] = 5;
     rankingMundial["Italia"] = 4;
     rankingMundial["Alemania"] = 4;
     rankingMundial["Argentina"] = 3;
-
-    // acceder a valores mediante operador []
-    cout << "Brasil: " << rankingMundial["Brasil"] << endl;
-    cout << "Argentina: " << rankingMundial["Argentina"] << endl;
-
-    // generar visualizacion SVG del arbol rojo-negro
+    rankingMundial["Francia"] = 2;
+    rankingMundial["Uruguay"] = 2;
+    rankingMundial["Inglaterra"] = 1;
+    rankingMundial["España"] = 1;
+    
+    cout << "Brasil: " << rankingMundial["Brasil"] << " copas" << endl;
+    cout << "Italia: " << rankingMundial["Italia"] << " copas" << endl;
+    cout << "Alemania: " << rankingMundial["Alemania"] << " copas" << endl;
+    cout << "Argentina: " << rankingMundial["Argentina"] << " copas" << endl;
+    cout << "Francia: " << rankingMundial["Francia"] << " copas" << endl;
+    cout << "Uruguay: " << rankingMundial["Uruguay"] << " copas" << endl;
+    
+    cout << endl << "Generando visualizacion SVG..." << endl;
     rankingMundial.toSVG("Mundiales.html");
-    cout << "se genero mundiales.html" << endl << endl;
-
-    // test 2: RBHash con datos string
-    cout << "RBHash<string> de dato personales" << endl;
+    cout << "Archivo 'Mundiales.html' generado exitosamente." << endl;
+    
+    cout << endl << "2. RBHash<string> - Datos Personales" << endl;
+    cout << "======================================" << endl;
+    
     RBHash<string> datosPersona;
-
-    // insertar pares clave-valor string
+    
     datosPersona["nombre"] = "Maria";
     datosPersona["apellido"] = "Gonzalez";
     datosPersona["ciudad"] = "San Jose";
-
-    // acceder a valores
+    datosPersona["pais"] = "Costa Rica";
+    datosPersona["edad"] = "28";
+    
     cout << "Nombre: " << datosPersona["nombre"] << endl;
+    cout << "Apellido: " << datosPersona["apellido"] << endl;
     cout << "Ciudad: " << datosPersona["ciudad"] << endl;
-
-    // generar SVG
+    cout << "Pais: " << datosPersona["pais"] << endl;
+    
+    cout << endl << "Generando visualizacion SVG..." << endl;
     datosPersona.toSVG("Persona.html");
-    cout << "se genero Persona.html" << endl;
-
+    cout << "Archivo 'Persona.html' generado exitosamente." << endl;
+    
+    cout << endl << "3. Prueba de Copia y Asignacion" << endl;
+    cout << "==================================" << endl;
+    
+    RBHash<int> copiaRanking = rankingMundial;
+    cout << "Copia - Brasil: " << copiaRanking["Brasil"] << " copas" << endl;
+    cout << "Copia - Argentina: " << copiaRanking["Argentina"] << " copas" << endl;
+    
+    // Modificar la copia
+    copiaRanking["Brasil"] = 6;
+    cout << "Copia modificada - Brasil: " << copiaRanking["Brasil"] << " copas" << endl;
+    cout << "Original - Brasil: " << rankingMundial["Brasil"] << " copas (debe seguir siendo 5)" << endl;
+    
+    cout << endl << "=== TODAS LAS PRUEBAS COMPLETADAS ===" << endl;
+    cout << "Abre los archivos HTML en tu navegador para ver los arboles." << endl;
+    
     return 0;
 }
