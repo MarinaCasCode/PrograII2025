@@ -79,7 +79,7 @@ Proyecto2/
 | `rbTree.h` | Implementación del árbol rojinegro con rotaciones y balanceo |
 | `RBHash.h` | Hash basado en árbol rojo-negro, con `operator[]` |
 | `NodoRB.h` | Definición del nodo rojo-negro con color |
-| `svgTreeViewer.cpp` | Generación del archivo SVG/HTML interactivo |
+| `svgTreeViewer.cpp` | No se utiliza, fue usado como guia |
 | `main.cpp` | Programa demostrativo del proyecto |
 
 ---
