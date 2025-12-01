@@ -155,6 +155,104 @@ private:
         
         static_cast<NodoRB<T>*>(this->raiz)->color = NEGRO;
     }
+    
+    void reemplazarSubarbol(Nodo<T>* u, Nodo<T>* v) {
+        if (!u->padre) {
+            this->raiz = v;
+        } else if (u == u->padre->izq) {
+            u->padre->izq = v;
+        } else {
+            u->padre->der = v;
+        }
+        
+        if (v) {
+            v->padre = u->padre;
+        }
+    }
+    
+    void fixDelete(NodoRB<T>* x) {
+        while (x != this->raiz && (!x || x->color == NEGRO)) {
+            if (x && x->padre && x == x->padre->izq) {
+                NodoRB<T>* w = static_cast<NodoRB<T>*>(x->padre->der);
+                
+                if (!w) break;
+                
+                // caso 1: hermano rojo
+                if (w->color == ROJO) {
+                    w->color = NEGRO;
+                    static_cast<NodoRB<T>*>(w->padre)->color = ROJO;
+                    rotarIzquierda(static_cast<NodoRB<T>*>(w->padre));
+                    w = static_cast<NodoRB<T>*>(x->padre ? x->padre->der : nullptr);
+                }
+                
+                if (!w) break;
+                
+                // caso 2: hermano negro con ambos hijos negros
+                if ((!w->izq || static_cast<NodoRB<T>*>(w->izq)->color == NEGRO) &&
+                    (!w->der || static_cast<NodoRB<T>*>(w->der)->color == NEGRO)) {
+                    w->color = ROJO;
+                    x = static_cast<NodoRB<T>*>(x->padre);
+                } else {
+                    // caso 3: hermano negro con hijo derecho negro
+                    if (!w->der || static_cast<NodoRB<T>*>(w->der)->color == NEGRO) {
+                        if (w->izq) static_cast<NodoRB<T>*>(w->izq)->color = NEGRO;
+                        w->color = ROJO;
+                        rotarDerecha(w);
+                        w = static_cast<NodoRB<T>*>(x->padre ? x->padre->der : nullptr);
+                    }
+                    
+                    // caso 4: hermano negro con hijo derecho rojo
+                    if (w) {
+                        w->color = x->padre ? static_cast<NodoRB<T>*>(x->padre)->color : NEGRO;
+                        if (x->padre) static_cast<NodoRB<T>*>(x->padre)->color = NEGRO;
+                        if (w->der) static_cast<NodoRB<T>*>(w->der)->color = NEGRO;
+                        if (x->padre) rotarIzquierda(static_cast<NodoRB<T>*>(x->padre));
+                    }
+                    x = static_cast<NodoRB<T>*>(this->raiz);
+                }
+            } else {
+                NodoRB<T>* w = static_cast<NodoRB<T>*>(x && x->padre ? x->padre->izq : nullptr);
+                
+                if (!w) break;
+                
+                // caso 1: hermano rojo
+                if (w->color == ROJO) {
+                    w->color = NEGRO;
+                    static_cast<NodoRB<T>*>(w->padre)->color = ROJO;
+                    rotarDerecha(static_cast<NodoRB<T>*>(w->padre));
+                    w = static_cast<NodoRB<T>*>(x->padre ? x->padre->izq : nullptr);
+                }
+                
+                if (!w) break;
+                
+                // caso 2: hermano negro con ambos hijos negros
+                if ((!w->der || static_cast<NodoRB<T>*>(w->der)->color == NEGRO) &&
+                    (!w->izq || static_cast<NodoRB<T>*>(w->izq)->color == NEGRO)) {
+                    w->color = ROJO;
+                    x = static_cast<NodoRB<T>*>(x && x->padre ? x->padre : nullptr);
+                } else {
+                    // caso 3: hermano negro con hijo izquierdo negro
+                    if (!w->izq || static_cast<NodoRB<T>*>(w->izq)->color == NEGRO) {
+                        if (w->der) static_cast<NodoRB<T>*>(w->der)->color = NEGRO;
+                        w->color = ROJO;
+                        rotarIzquierda(w);
+                        w = static_cast<NodoRB<T>*>(x->padre ? x->padre->izq : nullptr);
+                    }
+                    
+                    // caso 4: hermano negro con hijo izquierdo rojo
+                    if (w) {
+                        w->color = x && x->padre ? static_cast<NodoRB<T>*>(x->padre)->color : NEGRO;
+                        if (x && x->padre) static_cast<NodoRB<T>*>(x->padre)->color = NEGRO;
+                        if (w->izq) static_cast<NodoRB<T>*>(w->izq)->color = NEGRO;
+                        if (x && x->padre) rotarDerecha(static_cast<NodoRB<T>*>(x->padre));
+                    }
+                    x = static_cast<NodoRB<T>*>(this->raiz);
+                }
+            }
+        }
+        
+        if (x) x->color = NEGRO;
+    }
 
 public:
     ArbolRB() : ArbolSVG<T>() {}
@@ -192,6 +290,48 @@ public:
     
     NodoRB<T>* searchNode(const T& v) {
         return static_cast<NodoRB<T>*>(this->search(v));
+    }
+    
+    bool deleteNode(const T& v) {
+        NodoRB<T>* nodo = searchNode(v);
+        if (!nodo) return false;
+        
+        NodoRB<T>* y = nodo;
+        NodoRB<T>* x = nullptr;
+        Color colorOriginalY = y->color;
+        
+        if (!nodo->izq) {
+            x = static_cast<NodoRB<T>*>(nodo->der);
+            reemplazarSubarbol(nodo, nodo->der);
+        } else if (!nodo->der) {
+            x = static_cast<NodoRB<T>*>(nodo->izq);
+            reemplazarSubarbol(nodo, nodo->izq);
+        } else {
+            y = static_cast<NodoRB<T>*>(this->encontrarMinimo(nodo->der));
+            colorOriginalY = y->color;
+            x = static_cast<NodoRB<T>*>(y->der);
+            
+            if (y->padre == nodo) {
+                if (x) x->padre = y;
+            } else {
+                reemplazarSubarbol(y, y->der);
+                y->der = nodo->der;
+                if (y->der) y->der->padre = y;
+            }
+            
+            reemplazarSubarbol(nodo, y);
+            y->izq = nodo->izq;
+            if (y->izq) y->izq->padre = y;
+            y->color = nodo->color;
+        }
+        
+        delete nodo;
+        
+        if (colorOriginalY == NEGRO) {
+            fixDelete(x);
+        }
+        
+        return true;
     }
     
     string getSVGContent() override {
