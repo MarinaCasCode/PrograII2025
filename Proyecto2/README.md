@@ -81,6 +81,7 @@ Proyecto2/
 ## Créditos
 
 **Marina Castro Peralta C31886**
+**Gabriel Herrera Rodríguez C33830**
 
 **Curso:** CI-0113 Programación II  
 **Profesor:** Enrique Muñoz Monge  
